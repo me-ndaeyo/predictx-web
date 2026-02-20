@@ -1,18 +1,31 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Rajdhani, Geist_Mono } from "next/font/google"
+import { Orbitron, Barlow, JetBrains_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { Header } from "@/components/header"
 import { Toaster } from "@/components/ui/sonner"
 
-const rajdhani = Rajdhani({
+// Display font - bold, all-caps, aggressive
+const orbitron = Orbitron({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "700", "900"],
   variable: "--font-display",
 })
 
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+// Body text - clean geometric sans-serif
+const barlow = Barlow({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-body",
+})
+
+// Numbers/Stats - digital/tech feel
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-mono",
+})
 
 export const metadata: Metadata = {
   title: "PredictX - Web3 Football Prediction Markets",
@@ -44,10 +57,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${rajdhani.variable} font-sans antialiased`}>
+      <body
+        className={`${orbitron.variable} ${barlow.variable} ${jetbrainsMono.variable} font-body antialiased`}
+        style={{
+          backgroundImage: `linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%)`,
+          minHeight: "100vh",
+        }}
+      >
         <Header />
         {children}
-        <Toaster />
+        <Toaster theme="dark" position="bottom-right" />
         <Analytics />
       </body>
     </html>

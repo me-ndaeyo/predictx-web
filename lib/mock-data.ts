@@ -743,3 +743,10 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
 		timestamp: addDays(-4, 12),
 	},
 ];
+/**
+ * Mock/sample data for development and testing
+ */
+
+export const mockData = {
+	// Implementation placeholder
+};
