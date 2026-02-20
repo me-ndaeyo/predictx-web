@@ -3,9 +3,11 @@ import type { Metadata } from "next"
 import { Rajdhani, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
-import { Header } from "@/components/layout/Header"
+
 import { Toaster } from "@/components/ui/sonner"
-import { MobileBottomNav } from "@/components/layout/MobileBottomNav"
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav"
+import { Header } from "@/components/layout/Header"
+
 
 const rajdhani = Rajdhani({
   subsets: ["latin"],
