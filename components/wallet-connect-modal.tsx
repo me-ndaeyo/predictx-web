@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { isConnected as checkFreighter, requestAccess } from "@stellar/freighter-api";
 import {
   Dialog,
   DialogContent,
@@ -28,22 +27,21 @@ export function WalletConnectModal({ open, onClose }: WalletConnectModalProps) {
   const { connect, isConnecting } = useWallet();
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
 
- 
-const handleConnect = async (walletName: string) => {
-  setSelectedWallet(walletName);
-  try {
-    if (walletName === "Freighter") {
-      await connect();
-      onClose();
-    } else {
-      alert(`${walletName} is not fully integrated yet. Please use Freighter.`);
+  const handleConnect = async (walletName: string) => {
+    setSelectedWallet(walletName);
+    try {
+      if (walletName === "Freighter") {
+        await connect();
+        onClose();
+      } else {
+        alert(`${walletName} is not fully integrated yet. Please use Freighter.`);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSelectedWallet(null);
     }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    setSelectedWallet(null);
-  }
-};
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
