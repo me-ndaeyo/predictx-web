@@ -13,7 +13,6 @@ export function PlatformStats() {
   return (
     <div className="bg-background-secondary border-y border-primary/20 py-12">
       <div>
-        {/* Section header */}
         <div className="text-center mb-12 space-y-3">
           <h2 className="font-display text-3xl md:text-4xl font-black uppercase tracking-wider text-foreground text-glow-cyan">
             Platform Stats
@@ -22,7 +21,6 @@ export function PlatformStats() {
             Real-time platform activity
           </p>
 
-          {/* Decorative divider */}
           <div className="flex items-center justify-center gap-4 pt-1">
             <div className="h-px w-24 bg-linear-to-r from-transparent to-primary/50" />
             <div className="w-2 h-2 rounded-full bg-primary glow-cyan" />
