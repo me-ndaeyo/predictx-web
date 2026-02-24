@@ -88,6 +88,9 @@ export interface Transaction {
 	amountXLM: number;
 	description: string;
 	timestamp: string;
+	ledger: number;
+	fee: string;
+	status: "confirmed" | "failed";
 }
 
 export interface PlatformStats {
@@ -693,6 +696,9 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
 		amountXLM: 200 / XLM_RATE,
 		description: 'Staked $200 on "Will Palmer score?" – YES',
 		timestamp: addDays(-3, 10),
+		ledger: 50_123_456,
+		fee: "100 stroops (0.0000100 XLM)",
+		status: "confirmed",
 	},
 	{
 		hash: "b4e5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5",
@@ -701,6 +707,9 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
 		amountXLM: 500 / XLM_RATE,
 		description: 'Staked $500 on "Will Arsenal keep a clean sheet?" – NO',
 		timestamp: addDays(-3, 11),
+		ledger: 50_123_789,
+		fee: "100 stroops (0.0000100 XLM)",
+		status: "confirmed",
 	},
 	{
 		hash: "c5f6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6",
@@ -709,6 +718,9 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
 		amountXLM: 150 / XLM_RATE,
 		description: 'Staked $150 on "Will total goals be over 2.5?" – YES',
 		timestamp: addDays(-2, 14),
+		ledger: 50_134_012,
+		fee: "100 stroops (0.0000100 XLM)",
+		status: "confirmed",
 	},
 	{
 		hash: "d6a7e8f9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7",
@@ -717,6 +729,9 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
 		amountXLM: 437 / XLM_RATE,
 		description: 'Claimed winnings from "Will Brighton win?" pool',
 		timestamp: addDays(-1, 18),
+		ledger: 50_145_678,
+		fee: "100 stroops (0.0000100 XLM)",
+		status: "confirmed",
 	},
 	{
 		hash: "e7b8f9a0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8",
@@ -725,6 +740,9 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
 		amountXLM: 15 / XLM_RATE,
 		description: 'Vote reward for resolving "Will Everton win?" poll',
 		timestamp: addDays(-1, 19),
+		ledger: 50_145_901,
+		fee: "100 stroops (0.0000100 XLM)",
+		status: "confirmed",
 	},
 	{
 		hash: "f8c9a0b1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9",
@@ -733,6 +751,9 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
 		amountXLM: 8 / XLM_RATE,
 		description: "Vote reward for resolving VAR review poll",
 		timestamp: addDays(0, 9),
+		ledger: 50_156_234,
+		fee: "100 stroops (0.0000100 XLM)",
+		status: "confirmed",
 	},
 	{
 		hash: "a9d0b1c2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0",
@@ -741,6 +762,9 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
 		amountXLM: 0,
 		description: 'Poll creation fee — "Will there be a red card?"',
 		timestamp: addDays(-4, 12),
+		ledger: 50_098_765,
+		fee: "100 stroops (0.0000100 XLM)",
+		status: "confirmed",
 	},
 ];
 /**

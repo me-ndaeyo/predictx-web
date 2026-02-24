@@ -10,6 +10,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { useWallet } from "@/hooks/use-wallet";
+import { toast } from "sonner";
 
 interface WalletConnectModalProps {
   open: boolean;
@@ -34,7 +35,7 @@ export function WalletConnectModal({ open, onClose }: WalletConnectModalProps) {
         await connect();
         onClose();
       } else {
-        alert(`${walletName} is not fully integrated yet. Please use Freighter.`);
+        toast.info(`${walletName} is not fully integrated yet. Please use Freighter.`);
       }
     } catch (error) {
       console.error(error);

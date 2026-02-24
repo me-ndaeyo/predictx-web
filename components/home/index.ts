@@ -2,4 +2,4 @@
  * Home page components - Hero, TrendingPolls, UpcomingMatches, PlatformStats
  */
 
-export * from "./index"
+export { TrendingPolls } from "./trending-polls";

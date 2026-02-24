@@ -9,6 +9,7 @@ import {
   XLM_USD_RATE,
 } from "@/lib/constants";
 import { formatAddress } from "@/lib/calculations";
+import { toast } from "sonner";
 
 export interface ConnectPayload {
   address: string;
@@ -26,28 +27,55 @@ export interface TransactionReceipt {
   timestamp: string;
 }
 
+export type StellarNetwork = "testnet" | "mainnet";
+
 interface WalletState {
   isConnected: boolean;
   isConnecting: boolean;
   address: string;
   balance: number;
+  network: StellarNetwork;
 
   connect: () => Promise<void>;
   disconnect: () => void;
   updateBalance: (amount: number) => void;
+  switchNetwork: (network: StellarNetwork) => void;
   sendTransaction: (
     amountUSD: number,
     memo: string,
   ) => Promise<TransactionReceipt>;
 }
 
+const HORIZON_URLS: Record<StellarNetwork, string> = {
+  testnet: "https://horizon-testnet.stellar.org",
+  mainnet: "https://horizon.stellar.org",
+};
+
+/** Fetch native XLM balance from Horizon for the given network */
+async function fetchBalance(publicKey: string, network: StellarNetwork): Promise<number> {
+  try {
+    const response = await fetch(
+      `${HORIZON_URLS[network]}/accounts/${publicKey}`
+    );
+    if (!response.ok) return 0;
+    const data = await response.json();
+    const native = data.balances.find(
+      (b: any) => b.asset_type === "native"
+    )?.balance;
+    return parseFloat(native ?? "0");
+  } catch {
+    return 0;
+  }
+}
+
 export const useWallet = create<WalletState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       isConnected: false,
       isConnecting: false,
       address: "",
       balance: 0,
+      network: "testnet" as StellarNetwork,
 
       connect: async () => {
         set({ isConnecting: true });
@@ -57,7 +85,7 @@ export const useWallet = create<WalletState>()(
           const status = await checkFreighter();
           // Freighter v2 returns an object, v1 returned a boolean. This handles both!
           if (!status || (typeof status === 'object' && !status.isConnected)) {
-            alert("Freighter is not installed. Please install the browser extension.");
+            toast.info("Freighter is not installed. Please install the browser extension.");
             return;
           }
 
@@ -74,29 +102,14 @@ export const useWallet = create<WalletState>()(
           if (!publicKey) {
             throw new Error("Failed to retrieve public key");
           }
-          
-          const response = await fetch(
-            `https://horizon.stellar.org/accounts/${publicKey}`
-          );
-          
-          if (!response.ok) {
-            set({
-              isConnected: true,
-              address: publicKey,
-              balance: 0,
-            });
-            return;
-          }
 
-          const data = await response.json();
-          const nativeBalance = data.balances.find(
-            (b: any) => b.asset_type === "native"
-          )?.balance;
+          const currentNetwork = get().network;
+          const balance = await fetchBalance(publicKey, currentNetwork);
 
           set({
             isConnected: true,
             address: publicKey,
-            balance: parseFloat(nativeBalance ?? "0"),
+            balance,
           });
         } catch (error) {
           console.error("Freighter connect error:", error);
@@ -113,6 +126,23 @@ export const useWallet = create<WalletState>()(
           balance: 0,
           isConnecting: false,
         }),
+
+      switchNetwork: async (network: StellarNetwork) => {
+        const { address, isConnected } = get();
+        set({ network });
+
+        // Re-fetch balance from the new network's Horizon
+        if (isConnected && address) {
+          const balance = await fetchBalance(address, network);
+          set({ balance });
+        }
+
+        toast.success(`Switched to ${network}`, {
+          description: network === "mainnet"
+            ? "You are now on Stellar Mainnet"
+            : "You are now on Stellar Testnet",
+        });
+      },
 
       updateBalance: (amount) =>
         set((state) => ({

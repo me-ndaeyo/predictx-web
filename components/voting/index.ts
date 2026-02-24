@@ -2,4 +2,4 @@
  * Voting components - VotingCard, EvidenceSection, VoteTally
  */
 
-export * from "./index"
+// No voting-specific components yet — VotingOpportunities lives in components/ root

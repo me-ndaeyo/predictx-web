@@ -2,4 +2,5 @@
  * Layout components - Header, Footer, Navigation
  */
 
-export * from "./index"
+export { Header } from "./Header";
+export { MobileBottomNav } from "./mobile-bottom-nav";

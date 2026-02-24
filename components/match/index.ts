@@ -2,4 +2,4 @@
  * Match detail components - MatchHeader, PollCard, PollsList
  */
 
-export * from "./index"
+export { PollCard } from "./poll-card";

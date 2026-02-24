@@ -2,4 +2,5 @@
  * Wallet components - WalletButton, WalletConnectModal
  */
 
-export * from "./index"
+export { WalletButton } from "../wallet-button";
+export { WalletConnectModal } from "../wallet-connect-modal";

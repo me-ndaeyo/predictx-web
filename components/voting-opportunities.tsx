@@ -4,6 +4,8 @@ import { useState } from "react"
 import { Button } from "./ui/button"
 import { Coins, CheckCircle2, XCircle, HelpCircle } from "lucide-react"
 import { toast } from "sonner"
+import { useWallet } from "@/hooks/use-wallet"
+import { WalletConnectModal } from "./wallet-connect-modal"
 
 const votingPolls = [
   {
@@ -42,8 +44,15 @@ const votingPolls = [
 
 export function VotingOpportunities() {
   const [votedPolls, setVotedPolls] = useState<Set<number>>(new Set())
+  const [showWalletModal, setShowWalletModal] = useState(false)
+  const { isConnected } = useWallet()
 
   const handleVote = (pollId: number, vote: "yes" | "no" | "unclear", reward: number) => {
+    if (!isConnected) {
+      toast.info("Please connect your wallet")
+      setShowWalletModal(true)
+      return
+    }
     setVotedPolls((prev) => new Set([...prev, pollId]))
     toast.success(`Vote submitted: ${vote.toUpperCase()}`, {
       description: `You've earned $${reward.toFixed(2)} for participating!`,
@@ -132,6 +141,8 @@ export function VotingOpportunities() {
           </div>
         )
       })}
+      <WalletConnectModal open={showWalletModal} onClose={() => setShowWalletModal(false)} />
     </div>
   )
 }
+
