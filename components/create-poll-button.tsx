@@ -1,7 +1,7 @@
 "use client"
 
 import { Plus } from "lucide-react"
-import { Button } from "./ui/button"
+import { GamingButton } from "@/components/shared"
 
 interface CreatePollButtonProps {
   matchId: string
@@ -9,15 +9,16 @@ interface CreatePollButtonProps {
 
 export function CreatePollButton({ matchId }: CreatePollButtonProps) {
   return (
-    <Button
-      className="bg-gold hover:bg-gold/90 text-background font-bold uppercase tracking-wider glow-gold"
+    <GamingButton
+      variant="gold"
+      size="md"
       onClick={() => {
-        // TODO: Open create poll modal
+        // TODO: Open CreatePollModal with match pre-selected
         alert("Create Poll feature coming soon!")
       }}
     >
       <Plus className="mr-2 h-4 w-4" />
-      Create Poll
-    </Button>
+      Create a Prediction
+    </GamingButton>
   )
 }
