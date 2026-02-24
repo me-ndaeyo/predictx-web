@@ -2,4 +2,4 @@
  * Staking components - StakeModal, WinningsCalculator, PoolDistribution
  */
 
-export * from "./index"
+export { StakeModal } from "./stake-modal";

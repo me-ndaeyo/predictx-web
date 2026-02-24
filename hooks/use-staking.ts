@@ -8,7 +8,7 @@ import {
 	type WinningsCalculation,
 } from "@/lib/calculations";
 import { useMockData } from "@/hooks/use-mock-data";
-import { useWallet } from "@/hooks/use-wallet";
+import { useWallet, type TransactionReceipt } from "@/hooks/use-wallet";
 
 interface StakingState {
 	stakes: Stake[];
@@ -22,7 +22,7 @@ interface StakingState {
 		question: string,
 		side: "yes" | "no",
 		amount: number,
-	) => Promise<Stake>;
+	) => Promise<{ stake: Stake; receipt: TransactionReceipt }>;
 	calculateWinnings: (
 		amount: number,
 		side: "yes" | "no",
@@ -50,6 +50,7 @@ export const useStaking = create<StakingState>()(
 				side,
 				amount,
 			) => {
+				// Calls the wallet's simulated Stellar transaction
 				const receipt = await useWallet
 					.getState()
 					.sendTransaction(
@@ -57,6 +58,7 @@ export const useStaking = create<StakingState>()(
 						`Staked $${amount} on "${question}" – ${side.toUpperCase()}`,
 					);
 
+				// Update the poll pool in mock data store
 				useMockData.getState().updatePollPool(pollId, side, amount);
 
 				const stake: Stake = {
@@ -71,7 +73,7 @@ export const useStaking = create<StakingState>()(
 				};
 
 				set((s) => ({ stakes: [...s.stakes, stake] }));
-				return stake;
+				return { stake, receipt };
 			},
 
 			calculateWinnings: (amount, side, yesPool, noPool) =>

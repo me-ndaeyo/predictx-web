@@ -2,19 +2,30 @@
 
 import { useState } from "react"
 import { Clock, Users, Info } from "lucide-react"
-import { Button } from "./ui/button"
-import { StakeModal } from "./stake-modal"
+import { GamingButton } from "@/components/shared"
+import { StakeModal } from "@/components/staking"
+import type { Poll } from "@/lib/mock-data"
 
 interface PollCardProps {
-  poll: any
+  poll: Poll & { timeLeft?: string }
   matchId: string
+  matchName?: string
 }
 
-export function PollCard({ poll, matchId }: PollCardProps) {
+export function PollCard({ poll, matchId, matchName = "" }: PollCardProps) {
   const [showStakeModal, setShowStakeModal] = useState(false)
+  const [initialSide, setInitialSide] = useState<"yes" | "no">("yes")
+
   const total = poll.yesPool + poll.noPool
-  const yesPercentage = (poll.yesPool / total) * 100
-  const noPercentage = (poll.noPool / total) * 100
+  const yesPercentage = total > 0 ? (poll.yesPool / total) * 100 : 50
+  const noPercentage = 100 - yesPercentage
+
+  const isActive = !poll.status || poll.status === "active"
+
+  const openStake = (side: "yes" | "no") => {
+    setInitialSide(side)
+    setShowStakeModal(true)
+  }
 
   return (
     <>
@@ -28,13 +39,13 @@ export function PollCard({ poll, matchId }: PollCardProps) {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="inline-block px-2 py-1 bg-primary/20 text-primary text-xs font-bold uppercase tracking-wider rounded mb-2">
-                    {poll.category}
+                    {poll.category.replace("_", " ")}
                   </div>
                   <h3 className="font-display text-2xl font-bold text-foreground text-balance">{poll.question}</h3>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-background rounded text-xs font-mono font-bold text-primary whitespace-nowrap">
                   <Clock className="h-4 w-4" />
-                  {poll.timeLeft}
+                  {poll.timeLeft ?? poll.lockTime}
                 </div>
               </div>
 
@@ -90,26 +101,37 @@ export function PollCard({ poll, matchId }: PollCardProps) {
 
             {/* Right: Stake Buttons */}
             <div className="flex lg:flex-col gap-3 min-w-[200px]">
-              <Button
-                onClick={() => setShowStakeModal(true)}
-                className="flex-1 bg-success hover:bg-success/90 text-background font-bold uppercase tracking-wider glow-green h-14 group/btn"
+              <GamingButton
+                variant="success"
+                size="lg"
+                onClick={() => openStake("yes")}
+                className="flex-1"
+                disabled={!isActive}
               >
-                <span className="mr-2">Stake YES</span>
-                <span className="text-lg transform group-hover/btn:scale-110 transition-transform">→</span>
-              </Button>
-              <Button
-                onClick={() => setShowStakeModal(true)}
-                className="flex-1 bg-accent hover:bg-accent/90 text-background font-bold uppercase tracking-wider glow-magenta h-14 group/btn"
+                Stake YES →
+              </GamingButton>
+              <GamingButton
+                variant="danger"
+                size="lg"
+                onClick={() => openStake("no")}
+                className="flex-1"
+                disabled={!isActive}
               >
-                <span className="mr-2">Stake NO</span>
-                <span className="text-lg transform group-hover/btn:scale-110 transition-transform">→</span>
-              </Button>
+                Stake NO →
+              </GamingButton>
             </div>
           </div>
         </div>
       </div>
 
-      <StakeModal poll={poll} open={showStakeModal} onClose={() => setShowStakeModal(false)} />
+      <StakeModal
+        poll={poll}
+        matchId={matchId}
+        matchName={matchName}
+        initialSide={initialSide}
+        open={showStakeModal}
+        onClose={() => setShowStakeModal(false)}
+      />
     </>
   )
 }
