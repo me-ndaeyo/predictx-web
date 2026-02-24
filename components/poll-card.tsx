@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Clock, Users, Info } from "lucide-react"
+import { Clock, Users, Info, Lock } from "lucide-react"
 import { GamingButton } from "@/components/shared"
 import { StakeModal } from "@/components/staking"
 import type { Poll } from "@/lib/mock-data"
@@ -21,15 +21,27 @@ export function PollCard({ poll, matchId, matchName = "" }: PollCardProps) {
   const noPercentage = 100 - yesPercentage
 
   const isActive = !poll.status || poll.status === "active"
+  const isResolved = poll.status === "resolved"
+  const isLocked = poll.status === "locked"
+  const isVoting = poll.status === "voting"
 
   const openStake = (side: "yes" | "no") => {
+    if (!isActive) return
     setInitialSide(side)
     setShowStakeModal(true)
   }
 
   return (
     <>
-      <div className="bg-surface border-2 border-border clip-corner-lg hover:border-primary transition-all group relative overflow-hidden">
+      <div
+        className={[
+          "bg-surface border-2 clip-corner-lg transition-all group relative overflow-hidden",
+          isActive
+            ? "border-border hover:border-primary hover:translate-y-[-2px] hover:shadow-[0_0_30px_rgba(0,217,255,0.15)]"
+            : "border-border/50",
+          (isLocked || isResolved) ? "opacity-75" : "",
+        ].filter(Boolean).join(" ")}
+      >
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
 
         <div className="relative p-6">
@@ -101,24 +113,52 @@ export function PollCard({ poll, matchId, matchName = "" }: PollCardProps) {
 
             {/* Right: Stake Buttons */}
             <div className="flex lg:flex-col gap-3 min-w-[200px]">
-              <GamingButton
-                variant="success"
-                size="lg"
-                onClick={() => openStake("yes")}
-                className="flex-1"
-                disabled={!isActive}
-              >
-                Stake YES →
-              </GamingButton>
-              <GamingButton
-                variant="danger"
-                size="lg"
-                onClick={() => openStake("no")}
-                className="flex-1"
-                disabled={!isActive}
-              >
-                Stake NO →
-              </GamingButton>
+              {isActive ? (
+                <>
+                  <GamingButton
+                    variant="success"
+                    size="lg"
+                    onClick={() => openStake("yes")}
+                    className="flex-1"
+                  >
+                    Stake YES →
+                  </GamingButton>
+                  <GamingButton
+                    variant="danger"
+                    size="lg"
+                    onClick={() => openStake("no")}
+                    className="flex-1"
+                  >
+                    Stake NO →
+                  </GamingButton>
+                </>
+              ) : isLocked ? (
+                <div className="flex items-center justify-center gap-2 py-4 text-accent font-bold uppercase tracking-wider text-sm">
+                  <Lock className="h-4 w-4" />
+                  Staking Closed
+                </div>
+              ) : isVoting ? (
+                <div className="flex items-center justify-center gap-2 py-4 text-gold font-bold uppercase tracking-wider text-sm">
+                  Awaiting Resolution
+                </div>
+              ) : isResolved && poll.outcome ? (
+                <div
+                  className={`flex items-center justify-center gap-2 py-4 font-bold uppercase tracking-wider text-sm ${
+                    poll.outcome === "yes" ? "text-success" : "text-accent"
+                  }`}
+                >
+                  {poll.outcome === "yes" ? "YES WON ✓" : "NO WON ✓"}
+                </div>
+              ) : (
+                <GamingButton
+                  variant="primary"
+                  size="lg"
+                  disabled
+                  className="flex-1"
+                >
+                  Unavailable
+                </GamingButton>
+              )}
             </div>
           </div>
         </div>
