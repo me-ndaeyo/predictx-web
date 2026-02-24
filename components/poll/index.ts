@@ -2,4 +2,4 @@
  * Poll components - CreatePollModal, PollPreview
  */
 
-export * from "./index"
+// No poll-specific components yet

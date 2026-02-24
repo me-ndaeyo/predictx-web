@@ -1,132 +1,129 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Wallet, ChevronDown, LogOut, Copy } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { Wallet, ChevronDown, LogOut, Copy, Globe, ArrowRightLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
-DropdownMenu,
-DropdownMenuContent,
-DropdownMenuItem,
-DropdownMenuSeparator,
-DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { WalletConnectModal } from "./wallet-connect-modal"
-import { useWallet } from "@/hooks/use-wallet"
-import { shortenAddress } from "@/lib/utils"
-import Link from "next/link"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from "@/components/ui/dropdown-menu";
+import { WalletConnectModal } from "./wallet-connect-modal";
+import { useWallet } from "@/hooks/use-wallet";
+import type { StellarNetwork } from "@/hooks/use-wallet";
+import { shortenAddress } from "@/lib/utils";
+import Link from "next/link";
+import { toast } from "sonner";
+
+const NETWORK_CONFIG: Record<StellarNetwork, { label: string; color: string }> = {
+  testnet: { label: "Testnet", color: "text-yellow-400" },
+  mainnet: { label: "Mainnet", color: "text-green-400" },
+};
 
 export function WalletButton() {
+  const [showConnectModal, setShowConnectModal] = useState(false);
 
-const [showConnectModal, setShowConnectModal] = useState(false)
+  const { isConnected, address, balance, disconnect, network, switchNetwork } = useWallet();
 
-const { isConnected, address, balance, disconnect } = useWallet()
+  const copy = () => {
+    navigator.clipboard.writeText(address);
+    toast.success("Address copied!");
+  };
 
-const copy = () => {
+  if (!isConnected)
+    return (
+      <>
+        <Button onClick={() => setShowConnectModal(true)}>
+          <Wallet className="mr-2 h-4 w-4" />
+          Connect Wallet
+        </Button>
 
-navigator.clipboard.writeText(address)
+        <WalletConnectModal
+          open={showConnectModal}
+          onClose={() => setShowConnectModal(false)}
+        />
+      </>
+    );
 
-alert("Address copied!")
+  const currentNet = NETWORK_CONFIG[network];
 
-}
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline">
+          <div className="flex flex-col items-start">
+            <div className="flex items-center gap-1.5">
+              <span>{shortenAddress(address)}</span>
+              <span className={`text-[10px] font-semibold uppercase ${currentNet.color}`}>
+                {currentNet.label}
+              </span>
+            </div>
 
-if (!isConnected)
+            <span className="text-xs text-primary">
+              {balance.toLocaleString()} XLM
+            </span>
+          </div>
 
-return (
+          <ChevronDown className="ml-2 h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
 
-<>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuItem onClick={copy}>
+          <Copy className="mr-2 h-4 w-4" />
+          Copy Address
+        </DropdownMenuItem>
 
-<Button onClick={() => setShowConnectModal(true)}>
+        <DropdownMenuSeparator />
 
-<Wallet className="mr-2 h-4 w-4"/>
+        {/* Network switcher */}
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <ArrowRightLeft className="mr-2 h-4 w-4" />
+            <span>Network</span>
+            <span className={`ml-auto text-xs font-semibold ${currentNet.color}`}>
+              {currentNet.label}
+            </span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            {(Object.keys(NETWORK_CONFIG) as StellarNetwork[]).map((net) => (
+              <DropdownMenuItem
+                key={net}
+                onClick={() => switchNetwork(net)}
+                className={network === net ? "bg-accent" : ""}
+              >
+                <Globe className={`mr-2 h-4 w-4 ${NETWORK_CONFIG[net].color}`} />
+                {NETWORK_CONFIG[net].label}
+                {network === net && (
+                  <span className="ml-auto text-xs text-muted-foreground">●</span>
+                )}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
 
-Connect Wallet
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/dashboard">Dashboard</Link>
+        </DropdownMenuItem>
 
-</Button>
+        <DropdownMenuSeparator />
 
-<WalletConnectModal
+        <DropdownMenuItem asChild>
+          <Link href="/dashboard?tab=completed">Transaction History</Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
 
-open={showConnectModal}
-
-onClose={() => setShowConnectModal(false)}
-
-/>
-
-</>
-
-)
-
-return (
-
-<DropdownMenu>
-
-<DropdownMenuTrigger asChild>
-
-<Button variant="outline">
-
-<div className="flex flex-col items-start">
-
-<span>{shortenAddress(address)}</span>
-
-<span className="text-xs text-primary">
-
-{balance.toLocaleString()} XLM
-
-</span>
-
-</div>
-
-<ChevronDown className="ml-2 h-4 w-4"/>
-
-</Button>
-
-</DropdownMenuTrigger>
-
-<DropdownMenuContent align="end">
-
-<DropdownMenuItem onClick={copy}>
-
-<Copy className="mr-2 h-4 w-4"/>
-
-Copy Address
-
-</DropdownMenuItem>
-
-<DropdownMenuSeparator/>
-<DropdownMenuItem asChild>
-
-<Link href="/dashboard">
-
-Dashboard
-
-</Link>
-
-</DropdownMenuItem>
-
-<DropdownMenuSeparator/>
-
-<DropdownMenuItem asChild>
-
-<Link href="/dashboard?tab=completed">
-
-Transaction History
-</Link>
-
-</DropdownMenuItem>
-<DropdownMenuSeparator/>
-
-
-<DropdownMenuItem onClick={disconnect}>
-
-<LogOut className="mr-2 h-4 w-4"/>
-
-Disconnect		
-
-</DropdownMenuItem>
-
-</DropdownMenuContent>
-
-</DropdownMenu>
-
-)
-
+        <DropdownMenuItem onClick={disconnect}>
+          <LogOut className="mr-2 h-4 w-4" />
+          Disconnect
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }

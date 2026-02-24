@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   Home,
   Trophy,
@@ -11,10 +11,13 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 import { WalletConnectModal } from "../wallet-connect-modal"
+import { useWallet } from "@/hooks/use-wallet"
 
 export function MobileBottomNav() {
   const pathname = usePathname()
+  const router = useRouter()
   const [showWalletModal, setShowWalletModal] = useState(false)
+  const { isConnected } = useWallet()
 
   const items = [
     { icon: Home, label: "Home", href: "/" },
@@ -22,6 +25,15 @@ export function MobileBottomNav() {
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
     { icon: Vote, label: "Voting", href: "/voting" },
   ]
+
+  const handleWalletClick = () => {
+    if (isConnected) {
+      // Already connected — go to dashboard
+      router.push("/dashboard")
+    } else {
+      setShowWalletModal(true)
+    }
+  }
 
   return (
     <>
@@ -57,11 +69,25 @@ export function MobileBottomNav() {
         })}
 
         <button
-          onClick={() => setShowWalletModal(true)}
-          className="flex flex-col items-center flex-1 group"
+          onClick={handleWalletClick}
+          className={`flex flex-col items-center flex-1 group ${
+            isConnected ? "text-primary" : ""
+          }`}
         >
-          <WalletIcon className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-all" />
-          <span className="text-xs mt-1 text-muted-foreground group-hover:text-primary">
+          <WalletIcon
+            className={`h-6 w-6 transition-all ${
+              isConnected
+                ? "text-primary glow-cyan"
+                : "text-muted-foreground group-hover:text-primary"
+            }`}
+          />
+          <span
+            className={`text-xs mt-1 ${
+              isConnected
+                ? "text-primary"
+                : "text-muted-foreground group-hover:text-primary"
+            }`}
+          >
             Wallet
           </span>
         </button>

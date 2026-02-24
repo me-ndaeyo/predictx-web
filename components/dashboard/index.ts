@@ -2,4 +2,4 @@
  * Dashboard components - DashboardTabs, ActiveStakes, PendingResolution, VotingOpportunities, CompletedPredictions
  */
 
-export * from "./index"
+// No dashboard-specific components yet — they live in components/ root
