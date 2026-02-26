@@ -3,92 +3,52 @@
 import { Calendar, MapPin, Trophy } from "lucide-react"
 import { Button } from "./ui/button"
 import Link from "next/link"
+import { motion, useReducedMotion } from "framer-motion"
 
 const matches = [
-  {
-    id: 1,
-    homeTeam: "Chelsea",
-    awayTeam: "Man United",
-    date: "Dec 18, 2025",
-    time: "19:45",
-    venue: "Stamford Bridge",
-    league: "Premier League",
-    polls: 5,
-    totalPool: 15200,
-  },
-  {
-    id: 2,
-    homeTeam: "Arsenal",
-    awayTeam: "Liverpool",
-    date: "Dec 18, 2025",
-    time: "17:30",
-    venue: "Emirates Stadium",
-    league: "Premier League",
-    polls: 4,
-    totalPool: 12800,
-  },
-  {
-    id: 3,
-    homeTeam: "Man City",
-    awayTeam: "Tottenham",
-    date: "Dec 19, 2025",
-    time: "20:00",
-    venue: "Etihad Stadium",
-    league: "Premier League",
-    polls: 6,
-    totalPool: 18500,
-  },
-  {
-    id: 4,
-    homeTeam: "Newcastle",
-    awayTeam: "Aston Villa",
-    date: "Dec 20, 2025",
-    time: "15:00",
-    venue: "St James' Park",
-    league: "Premier League",
-    polls: 3,
-    totalPool: 8700,
-  },
-  {
-    id: 5,
-    homeTeam: "Brighton",
-    awayTeam: "West Ham",
-    date: "Dec 21, 2025",
-    time: "14:00",
-    venue: "Amex Stadium",
-    league: "Premier League",
-    polls: 4,
-    totalPool: 6900,
-  },
-  {
-    id: 6,
-    homeTeam: "Everton",
-    awayTeam: "Wolves",
-    date: "Dec 21, 2025",
-    time: "16:30",
-    venue: "Goodison Park",
-    league: "Premier League",
-    polls: 3,
-    totalPool: 5400,
-  },
+  { id: 1, homeTeam: "Chelsea", awayTeam: "Man United", date: "Dec 18, 2025", time: "19:45", venue: "Stamford Bridge", league: "Premier League", polls: 5, totalPool: 15200 },
+  { id: 2, homeTeam: "Arsenal", awayTeam: "Liverpool", date: "Dec 18, 2025", time: "17:30", venue: "Emirates Stadium", league: "Premier League", polls: 4, totalPool: 12800 },
+  { id: 3, homeTeam: "Man City", awayTeam: "Tottenham", date: "Dec 19, 2025", time: "20:00", venue: "Etihad Stadium", league: "Premier League", polls: 6, totalPool: 18500 },
+  { id: 4, homeTeam: "Newcastle", awayTeam: "Aston Villa", date: "Dec 20, 2025", time: "15:00", venue: "St James' Park", league: "Premier League", polls: 3, totalPool: 8700 },
+  { id: 5, homeTeam: "Brighton", awayTeam: "West Ham", date: "Dec 21, 2025", time: "14:00", venue: "Amex Stadium", league: "Premier League", polls: 4, totalPool: 6900 },
+  { id: 6, homeTeam: "Everton", awayTeam: "Wolves", date: "Dec 21, 2025", time: "16:30", venue: "Goodison Park", league: "Premier League", polls: 3, totalPool: 5400 },
 ]
 
 export function UpcomingMatches() {
+  const shouldReduce = useReducedMotion()
+
   return (
     <div id="matches" className="bg-background-secondary py-16 border-t border-primary/20">
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
-        <div className="flex items-center gap-3 mb-8">
+
+        {/* Section heading with slide-in */}
+        <motion.div
+          className="flex items-center gap-3 mb-8"
+          {...(shouldReduce ? {} : {
+            initial: { opacity: 0, x: -20 },
+            whileInView: { opacity: 1, x: 0 },
+            viewport: { once: true },
+            transition: { duration: 0.4 },
+          })}
+        >
           <div className="w-1 h-8 bg-success glow-green" />
           <h2 className="font-display text-3xl font-black uppercase text-success text-glow-green">Upcoming Matches</h2>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {matches.map((match) => (
-            <div
+          {matches.map((match, index) => (
+            <motion.div
               key={match.id}
-              className="bg-surface border border-border clip-corner-lg hover:border-primary transition-all group relative overflow-hidden"
+              className="bg-surface border border-border clip-corner-lg hover:border-primary transition-colors group relative overflow-hidden"
+              {...(shouldReduce ? {} : {
+                initial: { opacity: 0, y: 30 },
+                whileInView: { opacity: 1, y: 0 },
+                viewport: { once: true, margin: "-40px" },
+                transition: { duration: 0.45, delay: (index % 2) * 0.08 + Math.floor(index / 2) * 0.12 },
+                whileHover: { y: -2, transition: { duration: 0.15 } },
+              })}
             >
-              {/* Holographic shine effect */}
+              {/* Holographic shine sweep */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
 
               <div className="relative p-6 space-y-4">
@@ -103,7 +63,7 @@ export function UpcomingMatches() {
                   </div>
                 </div>
 
-                {/* Match teams */}
+                {/* Teams */}
                 <div className="flex items-center justify-between py-4">
                   <div className="flex-1 text-center">
                     <div className="text-2xl font-display font-black text-foreground uppercase">{match.homeTeam}</div>
@@ -146,7 +106,7 @@ export function UpcomingMatches() {
                   </div>
                 </div>
 
-                {/* Action button */}
+                {/* CTA */}
                 <Button
                   asChild
                   className="w-full bg-primary hover:bg-primary/90 text-background font-bold uppercase tracking-wider glow-cyan h-12 group/btn"
@@ -157,7 +117,7 @@ export function UpcomingMatches() {
                   </Link>
                 </Button>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
