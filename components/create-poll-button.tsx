@@ -1,13 +1,18 @@
 "use client"
 
+import { useState } from "react"
 import { Plus } from "lucide-react"
 import { GamingButton } from "@/components/shared"
+import { CreatePollModal } from "@/components/poll"
 
 interface CreatePollButtonProps {
-  matchId: string
+  matchId?: string
+  label?: string
 }
 
-export function CreatePollButton({ matchId }: CreatePollButtonProps) {
+export function CreatePollButton({ matchId, label = "Create a Prediction" }: CreatePollButtonProps) {
+  const [open, setOpen] = useState(false)
+
   return (
     <GamingButton
       variant="gold"
@@ -24,3 +29,4 @@ export function CreatePollButton({ matchId }: CreatePollButtonProps) {
     </GamingButton>
   )
 }
+
