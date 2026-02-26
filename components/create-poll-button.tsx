@@ -12,6 +12,8 @@ export function CreatePollButton({ matchId }: CreatePollButtonProps) {
     <GamingButton
       variant="gold"
       size="md"
+      fullWidth
+      className="sm:w-auto"
       onClick={() => {
         // TODO: Open CreatePollModal with match pre-selected
         alert("Create Poll feature coming soon!")
