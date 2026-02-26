@@ -2,74 +2,70 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import {
-	MOCK_VOTING_OPPORTUNITIES,
-	STORAGE_KEYS,
-	type VotingOpportunity,
-} from "@/lib/mock-data";
-import { useWallet } from "@/hooks/use-wallet";
+import { STORAGE_KEYS, type Poll } from "@/lib/mock-data";
+import { useMockData } from "@/hooks/use-mock-data";
+import { useStaking } from "@/hooks/use-staking";
 
-export type VoteChoice = "yes" | "no";
-
-export interface VoteRecord {
-	pollId: string;
-	matchName: string;
-	question: string;
-	vote: VoteChoice;
-	reward: number;
-	timestamp: string;
-}
+export type VoteDecision = "yes" | "no" | "unclear";
 
 interface VotingState {
-	availablePolls: VotingOpportunity[];
-	votingHistory: VoteRecord[];
-	hasVoted: (pollId: string) => boolean;
-	getVoteReward: (pollId: string) => number;
-	castVote: (pollId: string, vote: VoteChoice) => Promise<VoteRecord>;
+  userVotes: Record<string, VoteDecision>;
+  userEarnings: number;
+  availablePolls: () => Poll[];
+  getVoteReward: (pollId: string) => number;
+  castVote: (pollId: string, decision: VoteDecision) => Promise<void>;
+  getAccuracy: () => number;
 }
 
 export const useVoting = create<VotingState>()(
-	persist(
-		(set, get) => ({
-			availablePolls: MOCK_VOTING_OPPORTUNITIES,
-			votingHistory: [],
+  persist(
+    (set, get) => ({
+      userVotes: {},
+      userEarnings: 0,
 
-			hasVoted: (pollId) =>
-				get().votingHistory.some((v) => v.pollId === pollId),
+      availablePolls: () => {
+        const { polls } = useMockData.getState();
+        const { stakes } = useStaking.getState();
+        const { userVotes } = get();
 
-			getVoteReward: (pollId) =>
-				get().availablePolls.find((p) => p.pollId === pollId)?.reward ?? 0,
+        // Staked poll IDs
+        const stakedPollIds = new Set(stakes.map((s) => s.pollId));
 
-			castVote: async (pollId, vote) => {
-				const opp = get().availablePolls.find((p) => p.pollId === pollId);
-				if (!opp) throw new Error("Poll not found");
-				if (get().hasVoted(pollId))
-					throw new Error("Already voted on this poll");
+        return polls.filter(
+          (p) =>
+            p.status === "voting" &&
+            !stakedPollIds.has(p.id) &&
+            !userVotes[p.id],
+        );
+      },
 
-				await new Promise((r) => setTimeout(r, 800));
+      getVoteReward: (pollId: string) => {
+        const poll = useMockData.getState().getPoll(pollId);
+        if (!poll) return 0;
+        // 0.5% of total pool as reward
+        return (poll.yesPool + poll.noPool) * 0.005;
+      },
 
-				const record: VoteRecord = {
-					pollId,
-					matchName: opp.matchName,
-					question: opp.question,
-					vote,
-					reward: opp.reward,
-					timestamp: new Date().toISOString(),
-				};
+      castVote: async (pollId: string, decision: VoteDecision) => {
+        // Simulate network delay for the voting transaction
+        await new Promise((resolve) => setTimeout(resolve, 800));
 
-				// Credit reward to wallet
-				useWallet.getState().updateBalance(opp.reward);
+        const reward = get().getVoteReward(pollId);
 
-				set((s) => ({
-					votingHistory: [...s.votingHistory, record],
-					availablePolls: s.availablePolls.filter(
-						(p) => p.pollId !== pollId,
-					),
-				}));
+        set((state) => ({
+          userVotes: { ...state.userVotes, [pollId]: decision },
+          userEarnings: state.userEarnings + reward,
+        }));
+      },
 
-				return record;
-			},
-		}),
-		{ name: STORAGE_KEYS.votes },
-	),
+      getAccuracy: () => {
+        // Mock accuracy since we don't have historical resolution mapped back to user votes perfectly yet
+        const votesCast = Object.keys(get().userVotes).length;
+        if (votesCast === 0) return 0;
+        // Mocking a high accuracy for UI demonstration
+        return 89;
+      },
+    }),
+    { name: STORAGE_KEYS.votes },
+  ),
 );
